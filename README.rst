@@ -34,6 +34,6 @@ Acknowledgements
 
 `https://github.com/covid-19-au <https://github.com/covid-19-au>`_
 
-`https://github.com/pomber <https://github.com/pomber>`_
+`https://github.com/pomber/covid19 <https://github.com/pomber/covid19>`_
 
 
