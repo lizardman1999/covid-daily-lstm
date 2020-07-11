@@ -32,8 +32,8 @@ The perspective parameter may be either 'global' for global daily statistics or 
 Acknowledgements
 ----------------
 
-github.com/covid-19-au
+`https://github.com/covid-19-au <https://github.com/covid-19-au>`_
 
-github.com/pomber
+`https://github.com/pomber <https://github.com/pomber>`_
 
 
