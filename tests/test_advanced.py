@@ -9,7 +9,7 @@ class AdvancedTestSuite(unittest.TestCase):
     """Advanced test cases."""
 
     def test_thoughts(self):
-        self.assertIsNone(covid_forecast.hmm())
+        self.assertIsNone(covid_forecast.run_daily_stats)
 
 
 if __name__ == '__main__':
