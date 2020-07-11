@@ -1,0 +1,10 @@
+nose
+sphinx
+pandas
+matplotlib
+keras
+sklearn
+numpy
+scikit-learn
+tensorflow
+setuptools
