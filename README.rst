@@ -21,7 +21,7 @@ How to install and use
 
 	 	import covid_forecast as cf
 	 
-	 	cf.run_daily_stats(persepctive='global',train_sample_size = 0.8)
+	 	cf.run_daily_stats(perspective='global',train_sample_size = 0.8)
 		
 
 Input Parameters
