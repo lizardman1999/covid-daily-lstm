@@ -19,12 +19,12 @@ def prepare_data(dataset, look_back=1):
     This function takes a data set and offsets x by look_back returning x and y arrays
     """
 
-    dX, dY = [], []
+    d_x, d_y = [], []
     for i in range(len(dataset) - look_back - 1):
         a = dataset[i:(i + look_back), 0]
-        dX.append(a)
-        dY.append(dataset[i + look_back, 0])
-    return numpy.array(dX), numpy.array(dY)
+        d_x.append(a)
+        d_y.append(dataset[i + look_back, 0])
+    return numpy.array(d_x), numpy.array(d_y)
 
 
 def get_data(perspective):
@@ -120,112 +120,112 @@ def run_daily_stats(perspective
 
     # reshape into X=t and Y=t+1
     look_back = 10
-    trX, trY = prepare_data(tr, look_back)
+    tr_x, tr_y = prepare_data(tr, look_back)
     if do_test:
-        tstX, tstY = prepare_data(tst, look_back)
+        tst_x, tst_y = prepare_data(tst, look_back)
 
     # reshape input to be [samples, time steps, features]
-    trX = numpy.reshape(trX, (trX.shape[0], 1, trX.shape[1]))
+    tr_x = numpy.reshape(tr_x, (tr_x.shape[0], 1, tr_x.shape[1]))
     if do_test:
-        tstX = numpy.reshape(tstX, (tstX.shape[0], 1, tstX.shape[1]))
+        tst_x = numpy.reshape(tst_x, (tst_x.shape[0], 1, tst_x.shape[1]))
 
     # create and fit the LSTM network
-    modelPred = Sequential()
-    modelPred.add(LSTM(4, input_shape=(1, look_back)
-                       , recurrent_regularizer='l1'
-                       , activity_regularizer='l1'
-                       , kernel_regularizer='l1'))
-    modelPred.add(Dense(1))
-    modelPred.compile(loss='mean_squared_error', optimizer='adam')
-    modelPred.fit(trX, trY, epochs=1000, batch_size=1, verbose=0)
+    model_pred = Sequential()
+    model_pred.add(LSTM(4, input_shape=(1, look_back)
+                        , recurrent_regularizer='l1'
+                        , activity_regularizer='l1'
+                        , kernel_regularizer='l1'))
+    model_pred.add(Dense(1))
+    model_pred.compile(loss='mean_squared_error', optimizer='adam')
+    model_pred.fit(tr_x, tr_y, epochs=1000, batch_size=1, verbose=0)
 
     # make predictions
-    trPredict = modelPred.predict(trX)
+    tr_predict = model_pred.predict(tr_x)
     if do_test:
-        tstPredict = modelPred.predict(tstX)
-    prd1X = ds2[len(ds2) - look_back - 1:len(ds2) - 1]
-    prd1X = numpy.array([numpy.array([prd1X.flatten()])])
-    prdPredict1 = modelPred.predict(prd1X)
-    prd2X = ds2[len(ds2) - look_back:len(ds2)]
-    prd2X = numpy.array([numpy.array([prd2X.flatten()])])
-    prdPredict2 = modelPred.predict(prd2X)
-    prd3X = numpy.append(prd2X, prdPredict2)
-    prd3X = prd3X[len(prd3X) - look_back:len(prd3X)]
-    prd3X = numpy.array([numpy.array([prd3X.flatten()])])
-    prdPredict3 = modelPred.predict(prd3X)
-    prd4X = numpy.append(prd3X, prdPredict3)
-    prd4X = prd4X[len(prd4X) - look_back:len(prd4X)]
-    prd4X = numpy.array([numpy.array([prd4X.flatten()])])
-    prdPredict4 = modelPred.predict(prd4X)
-    prd5X = numpy.append(prd4X, prdPredict4)
-    prd5X = prd5X[len(prd5X) - look_back:len(prd5X)]
-    prd5X = numpy.array([numpy.array([prd5X.flatten()])])
-    prdPredict5 = modelPred.predict(prd5X)
-    prd6X = numpy.append(prd5X, prdPredict5)
-    prd6X = prd6X[len(prd6X) - look_back:len(prd6X)]
-    prd6X = numpy.array([numpy.array([prd6X.flatten()])])
-    prdPredict6 = modelPred.predict(prd6X)
-    prd7X = numpy.append(prd6X, prdPredict6)
-    prd7X = prd7X[len(prd7X) - look_back:len(prd7X)]
-    prd7X = numpy.array([numpy.array([prd7X.flatten()])])
-    prdPredict7 = modelPred.predict(prd7X)
+        tst_predict = model_pred.predict(tst_x)
+    prd1_x = ds2[len(ds2) - look_back - 1:len(ds2) - 1]
+    prd1_x = numpy.array([numpy.array([prd1_x.flatten()])])
+    prd_predict1 = model_pred.predict(prd1_x)
+    prd2_x = ds2[len(ds2) - look_back:len(ds2)]
+    prd2_x = numpy.array([numpy.array([prd2_x.flatten()])])
+    prd_predict2 = model_pred.predict(prd2_x)
+    prd3_x = numpy.append(prd2_x, prd_predict2)
+    prd3_x = prd3_x[len(prd3_x) - look_back:len(prd3_x)]
+    prd3_x = numpy.array([numpy.array([prd3_x.flatten()])])
+    prd_predict3 = model_pred.predict(prd3_x)
+    prd4_x = numpy.append(prd3_x, prd_predict3)
+    prd4_x = prd4_x[len(prd4_x) - look_back:len(prd4_x)]
+    prd4_x = numpy.array([numpy.array([prd4_x.flatten()])])
+    prd_predict4 = model_pred.predict(prd4_x)
+    prd5_x = numpy.append(prd4_x, prd_predict4)
+    prd5_x = prd5_x[len(prd5_x) - look_back:len(prd5_x)]
+    prd5_x = numpy.array([numpy.array([prd5_x.flatten()])])
+    prd_predict5 = model_pred.predict(prd5_x)
+    prd6_x = numpy.append(prd5_x, prd_predict5)
+    prd6_x = prd6_x[len(prd6_x) - look_back:len(prd6_x)]
+    prd6_x = numpy.array([numpy.array([prd6_x.flatten()])])
+    prd_predict6 = model_pred.predict(prd6_x)
+    prd7_x = numpy.append(prd6_x, prd_predict6)
+    prd7_x = prd7_x[len(prd7_x) - look_back:len(prd7_x)]
+    prd7_x = numpy.array([numpy.array([prd7_x.flatten()])])
+    prd_predict7 = model_pred.predict(prd7_x)
 
     # invert predictions from scaled
-    trPredict = scaler.inverse_transform(trPredict)
-    trY = scaler.inverse_transform([trY])
+    tr_predict = scaler.inverse_transform(tr_predict)
+    tr_y = scaler.inverse_transform([tr_y])
     if do_test:
-        tstPredict = scaler.inverse_transform(tstPredict)
-        tstY = scaler.inverse_transform([tstY])
-    prdPredict1 = scaler.inverse_transform(prdPredict1)
-    print('Latest Prediction (in 1 days): %.0f' % prdPredict1)
-    prdPredict2 = scaler.inverse_transform(prdPredict2)
-    print('Latest Prediction (in 2 days): %.0f' % prdPredict2)
-    prdPredict3 = scaler.inverse_transform(prdPredict3)
-    print('Latest Prediction (in 3 days): %.0f' % prdPredict3)
-    prdPredict4 = scaler.inverse_transform(prdPredict4)
-    print('Latest Prediction (in 4 days): %.0f' % prdPredict4)
-    prdPredict5 = scaler.inverse_transform(prdPredict5)
-    print('Latest Prediction (in 5 days): %.0f' % prdPredict5)
-    prdPredict6 = scaler.inverse_transform(prdPredict6)
-    print('Latest Prediction (in 6 days): %.0f' % prdPredict6)
-    prdPredict7 = scaler.inverse_transform(prdPredict7)
-    print('Latest Prediction (in 7 days): %.0f' % prdPredict7)
+        tst_predict = scaler.inverse_transform(tst_predict)
+        tst_y = scaler.inverse_transform([tst_y])
+    prd_predict1 = scaler.inverse_transform(prd_predict1)
+    print('Latest Prediction (in 1 days): %.0f' % prd_predict1)
+    prd_predict2 = scaler.inverse_transform(prd_predict2)
+    print('Latest Prediction (in 2 days): %.0f' % prd_predict2)
+    prd_predict3 = scaler.inverse_transform(prd_predict3)
+    print('Latest Prediction (in 3 days): %.0f' % prd_predict3)
+    prd_predict4 = scaler.inverse_transform(prd_predict4)
+    print('Latest Prediction (in 4 days): %.0f' % prd_predict4)
+    prd_predict5 = scaler.inverse_transform(prd_predict5)
+    print('Latest Prediction (in 5 days): %.0f' % prd_predict5)
+    prd_predict6 = scaler.inverse_transform(prd_predict6)
+    print('Latest Prediction (in 6 days): %.0f' % prd_predict6)
+    prd_predict7 = scaler.inverse_transform(prd_predict7)
+    print('Latest Prediction (in 7 days): %.0f' % prd_predict7)
     print(for_lstm.tail(40))
 
     # calculate root mean squared error
-    trScore = math.sqrt(mean_squared_error(trY[0], trPredict[:, 0])) / trY.mean()
-    print('Train Score: %.2f Scaled RMSE' % trScore)
+    tr_score = math.sqrt(mean_squared_error(tr_y[0], tr_predict[:, 0])) / tr_y.mean()
+    print('Train Score: %.2f Scaled RMSE' % tr_score)
     if do_test:
-        tstScore = math.sqrt(mean_squared_error(tstY[0], tstPredict[:, 0])) / tstY.mean()
-        print('Test Score: %.2f Scaled RMSE' % tstScore)
+        tst_score = math.sqrt(mean_squared_error(tst_y[0], tst_predict[:, 0])) / tst_y.mean()
+        print('Test Score: %.2f Scaled RMSE' % tst_score)
 
     # Create a forecast series of 7 days
-    forecast_7 = [prdPredict1[0, 0]
-        , prdPredict2[0, 0]
-        , prdPredict3[0, 0]
-        , prdPredict4[0, 0]
-        , prdPredict5[0, 0]
-        , prdPredict6[0, 0]
-        , prdPredict7[0, 0]]
+    forecast_7 = [prd_predict1[0, 0]
+        , prd_predict2[0, 0]
+        , prd_predict3[0, 0]
+        , prd_predict4[0, 0]
+        , prd_predict5[0, 0]
+        , prd_predict6[0, 0]
+        , prd_predict7[0, 0]]
     dates = pd.date_range(start=for_lstm.index.max() + pd.DateOffset(), periods=7)
 
     # shift train predictions for plotting
-    trPredictPlot = numpy.empty_like(ds2)
-    trPredictPlot[:, :] = numpy.nan
-    trPredictPlot[look_back:len(trPredict) + look_back, :] = trPredict
+    tr_predict_plot = numpy.empty_like(ds2)
+    tr_predict_plot[:, :] = numpy.nan
+    tr_predict_plot[look_back:len(tr_predict) + look_back, :] = tr_predict
 
     # shift test predictions for plotting
     if do_test:
-        tstPredictPlot = numpy.empty_like(ds2)
-        tstPredictPlot[:, :] = numpy.nan
-        tstPredictPlot[len(trPredict) + (look_back * 2) + 1:len(ds2) - 1, :] = tstPredict
+        tst_predict_plot = numpy.empty_like(ds2)
+        tst_predict_plot[:, :] = numpy.nan
+        tst_predict_plot[len(tr_predict) + (look_back * 2) + 1:len(ds2) - 1, :] = tst_predict
 
     # plot baseline and predictions
     plt.plot(numpy.array(for_lstm.index), scaler.inverse_transform(ds2))
-    plt.plot(numpy.array(for_lstm.index), trPredictPlot)
+    plt.plot(numpy.array(for_lstm.index), tr_predict_plot)
     plt.plot(numpy.array(dates), forecast_7)
     if do_test:
-        plt.plot(numpy.array(for_lstm.index), tstPredictPlot)
+        plt.plot(numpy.array(for_lstm.index), tst_predict_plot)
     if perspective == 'vic':
         p_title = 'Victorian'
     elif perspective == 'global':
