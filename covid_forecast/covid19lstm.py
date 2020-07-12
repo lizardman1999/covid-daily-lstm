@@ -226,11 +226,15 @@ def run_daily_stats(perspective
     plt.plot(numpy.array(dates), forecast_7)
     if do_test:
         plt.plot(numpy.array(for_lstm.index), tstPredictPlot)
-    plt.title('Global Daily Covid19 Infections')
+    if perspective == 'vic':
+        p_title = 'Victorian'
+    elif perspective == 'global':
+        p_title = 'Global'
+    plt.title(p_title + ' Daily Covid19 Infections')
     plt.xlabel('Date')
     plt.ylabel('Count of Cases')
     if do_test:
-        plt.legend(['Actual', 'Training Series',  'Forecast', 'Test Series'])
+        plt.legend(['Actual', 'Training Series', 'Forecast', 'Test Series'])
     else:
         plt.legend(['Actual', 'Training Series', 'Forecast'])
 
