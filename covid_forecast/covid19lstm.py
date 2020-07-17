@@ -1,4 +1,4 @@
-# Required libraries
+# Required modules and packages
 import numpy
 import ssl
 import pandas as pd
