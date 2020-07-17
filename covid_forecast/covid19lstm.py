@@ -13,6 +13,42 @@ import tensorflow
 import urllib.request as urllib
 import json
 
+def read_state_data(state_tla):
+    """
+    Use a state three letter identifier (lower case) to extrtact state-level data from the
+    national json file.
+    :param state_tla:
+    :return: masterdf
+    """
+    state_tla = state_tla.upper()
+    url = "https://raw.githubusercontent.com/covid-19-au/covid-19-au.github.io/prod/src/data/state.json"
+    response = urllib.urlopen(url)
+    nat_timeseries = json.loads(response.read())
+    date = []
+    cases = []
+    deaths = []
+    recovered = []
+    tests = []
+    for i in nat_timeseries:
+        date = numpy.append(date, i)
+        cases = numpy.append(cases, nat_timeseries[i][state_tla][0])
+        if len(nat_timeseries[i][state_tla]) > 1:
+            deaths = numpy.append(deaths, nat_timeseries[i][state_tla][1])
+            recovered = numpy.append(recovered, nat_timeseries[i][state_tla][2])
+            tests = numpy.append(tests, nat_timeseries[i][state_tla][3])
+        else:
+            deaths = numpy.append(deaths, 0)
+            recovered = numpy.append(recovered, 0)
+            tests = numpy.append(tests, 0)
+
+    state_timeseries = {"date": date, "cases": cases, "deaths": deaths, "recovered": recovered, "tests": tests}
+
+    # Create data frame from json
+    masterdf = pd.DataFrame.from_dict(state_timeseries)
+    masterdf.set_index(pd.to_datetime(state_timeseries['date'], format='%Y-%m-%d'))
+
+    return masterdf
+
 
 def prepare_data(dataset, look_back=1):
     """
@@ -48,32 +84,7 @@ def get_data(perspective):
             else:
                 masterdf = masterdf.append(df)
 
-    if perspective == 'vic':
-        url = "https://raw.githubusercontent.com/covid-19-au/covid-19-au.github.io/prod/src/data/state.json"
-        response = urllib.urlopen(url)
-        nat_timeseries = json.loads(response.read())
-        date = []
-        cases = []
-        deaths = []
-        recovered = []
-        tests = []
-        for i in nat_timeseries:
-            date = numpy.append(date, i)
-            cases = numpy.append(cases, nat_timeseries[i]["VIC"][0])
-            if len(nat_timeseries[i]["VIC"]) > 1:
-                deaths = numpy.append(deaths, nat_timeseries[i]["VIC"][1])
-                recovered = numpy.append(recovered, nat_timeseries[i]["VIC"][2])
-                tests = numpy.append(tests, nat_timeseries[i]["VIC"][3])
-            else:
-                deaths = numpy.append(deaths, 0)
-                recovered = numpy.append(recovered, 0)
-                tests = numpy.append(tests, 0)
-
-        vic_timeseries = {"date": date, "cases": cases, "deaths": deaths, "recovered": recovered, "tests": tests}
-
-        # Create data frame from json
-        masterdf = pd.DataFrame.from_dict(vic_timeseries)
-        masterdf.set_index(pd.to_datetime(vic_timeseries['date'], format='%Y-%m-%d'))
+    masterdf = read_state_data(perspective)
 
     # Calculate daily cases and sum to date
     masterdf['date'] = pd.to_datetime(masterdf['date'])
@@ -228,8 +239,14 @@ def run_daily_stats(perspective
         plt.plot(numpy.array(for_lstm.index), tst_predict_plot)
     if perspective == 'vic':
         p_title = 'Victorian'
+    elif perspective == 'nsw':
+        p_title = 'New South Wales'
+    elif perspective == 'qld':
+        p_title = 'Queensland'
     elif perspective == 'global':
         p_title = 'Global'
+    else:
+        p_title = ''
     plt.title(p_title + ' Daily Covid19 Infections')
     plt.xlabel('Date')
     plt.ylabel('Count of Cases')
