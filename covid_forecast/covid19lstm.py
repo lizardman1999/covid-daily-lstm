@@ -251,8 +251,8 @@ def run_daily_stats(perspective
     plt.xlabel('Date')
     plt.ylabel('Count of Cases')
     if do_test:
-        plt.legend(['Actual', 'Training Series', 'Forecast', 'Test Series'])
+        plt.legend(['Actual', 'Training', 'Forecast', 'Test'])
     else:
-        plt.legend(['Actual', 'Training Series', 'Forecast'])
+        plt.legend(['Actual', 'Training', 'Forecast'])
 
     return plt
