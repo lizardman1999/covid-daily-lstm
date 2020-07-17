@@ -13,12 +13,14 @@ import tensorflow
 import urllib.request as urllib
 import json
 
+masterdf = pd.DataFrame
+
 def read_state_data(state_tla):
     """
     Use a state three letter identifier (lower case) to extrtact state-level data from the
     national json file.
     :param state_tla:
-    :return: masterdf
+    :return: mdf
     """
     state_tla = state_tla.upper()
     url = "https://raw.githubusercontent.com/covid-19-au/covid-19-au.github.io/prod/src/data/state.json"
@@ -44,10 +46,10 @@ def read_state_data(state_tla):
     state_timeseries = {"date": date, "cases": cases, "deaths": deaths, "recovered": recovered, "tests": tests}
 
     # Create data frame from json
-    masterdf = pd.DataFrame.from_dict(state_timeseries)
-    masterdf.set_index(pd.to_datetime(state_timeseries['date'], format='%Y-%m-%d'))
+    mdf = pd.DataFrame.from_dict(state_timeseries)
+    mdf.set_index(pd.to_datetime(state_timeseries['date'], format='%Y-%m-%d'))
 
-    return masterdf
+    return mdf
 
 
 def prepare_data(dataset, look_back=1):
@@ -66,16 +68,14 @@ def prepare_data(dataset, look_back=1):
 def get_data(perspective):
     """
     This function returns and formats data based on the data perspective chosen:
-    'global' or 'vic'
+    'global' or 'vic' or 'nsw' or 'qld'
     """
-
+    states = ['vic', 'nsw', 'qld']
     # Read in data
     ssl._create_default_https_context = ssl._create_unverified_context
-
     if perspective == 'global':
         url = "https://pomber.github.io/covid19/timeseries.json"
         covid_data = pd.read_json('https://pomber.github.io/covid19/timeseries.json')
-        masterdf = pd.DataFrame
         for i, row in covid_data.iterrows():
             df = pd.json_normalize(covid_data[covid_data.keys()[i]])
             df = df.assign(country=covid_data.keys()[i])
@@ -83,21 +83,21 @@ def get_data(perspective):
                 masterdf = df
             else:
                 masterdf = masterdf.append(df)
-
-    masterdf = read_state_data(perspective)
+    else:
+        masterdf = read_state_data(perspective)
 
     # Calculate daily cases and sum to date
     masterdf['date'] = pd.to_datetime(masterdf['date'])
     if perspective == 'global':
         masterdf['daily_counts'] = masterdf['confirmed'].diff()
-    if perspective == 'vic':
+    elif perspective in states:
         masterdf['daily_counts'] = masterdf['cases'].diff()
     masterdf.loc[masterdf.daily_counts < 0, 'daily_counts'] = 0
     masterdf.loc[masterdf.daily_counts.isnull(), 'daily_counts'] = 0
     for_lstm = masterdf.groupby('date').agg('sum')
     if perspective == 'global':
         for_lstm = for_lstm.drop(['confirmed', 'deaths', 'recovered'], axis=1)
-    if perspective == 'vic':
+    elif perspective in states:
         for_lstm = for_lstm.drop(['cases', 'deaths', 'recovered', 'tests'], axis=1)
 
     return for_lstm
