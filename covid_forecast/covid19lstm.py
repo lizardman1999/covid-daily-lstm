@@ -117,11 +117,19 @@ def get_data(perspective, series_type):
     return for_lstm
 
 
-def run_daily_stats(perspective
-                    , train_sample_size=1
+def run_daily_stats(perspective='global'
+                    , train_sample_size=1.0
                     , series_type='Infections'):
     """
     This program reads covid cases and calculates daily increase before applying a lstm forecast
+    :param perspective: (str) One of 'global','vic','nsw' or 'qld'
+    :param train_sample_size: (float) The proportion (more than 0 and less than or equal to 1)
+                                      of the sample to be held out for training. The remainder
+                                      is held out time-wise for testing.
+    :param series_type: (str) Determines the series to be forecast, either 'Infections' or
+                              'Case Fatality Rate'
+    :returns: None. Prints to console and creates interactive graph
+    TODO: write data to log and graph to file
     """
 
     states = ['vic', 'nsw', 'qld']
