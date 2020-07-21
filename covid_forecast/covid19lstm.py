@@ -15,6 +15,7 @@ import json
 
 masterdf = pd.DataFrame
 
+
 def read_state_data(state_tla):
     """
     Use a state three letter identifier (lower case) to extrtact state-level data from the
@@ -65,12 +66,14 @@ def prepare_data(dataset, look_back=1):
     return numpy.array(d_x), numpy.array(d_y)
 
 
-def get_data(perspective):
+def get_data(perspective, series_type):
     """
     This function returns and formats data based on the data perspective chosen:
     'global' or 'vic' or 'nsw' or 'qld'
     """
+
     states = ['vic', 'nsw', 'qld']
+
     # Read in data
     ssl._create_default_https_context = ssl._create_unverified_context
     if perspective == 'global':
@@ -95,19 +98,33 @@ def get_data(perspective):
     masterdf.loc[masterdf.daily_counts < 0, 'daily_counts'] = 0
     masterdf.loc[masterdf.daily_counts.isnull(), 'daily_counts'] = 0
     for_lstm = masterdf.groupby('date').agg('sum')
-    if perspective == 'global':
-        for_lstm = for_lstm.drop(['confirmed', 'deaths', 'recovered'], axis=1)
-    elif perspective in states:
-        for_lstm = for_lstm.drop(['cases', 'deaths', 'recovered', 'tests'], axis=1)
+
+    if series_type == 'Case Fatality Rate':
+        if perspective == 'global':
+            for_lstm["cfr"] = for_lstm["deaths"] / for_lstm["confirmed"]
+        elif perspective in states:
+            for_lstm["cfr"] = for_lstm["deaths"] / for_lstm["cases"]
+        if perspective == 'global':
+            for_lstm = for_lstm.drop(['confirmed', 'deaths', 'recovered', 'daily_counts'], axis=1)
+        elif perspective in states:
+            for_lstm = for_lstm.drop(['cases', 'deaths', 'recovered', 'tests', 'daily_counts'], axis=1)
+    elif series_type == 'Infections':
+        if perspective == 'global':
+            for_lstm = for_lstm.drop(['confirmed', 'deaths', 'recovered'], axis=1)
+        elif perspective in states:
+            for_lstm = for_lstm.drop(['cases', 'deaths', 'recovered', 'tests'], axis=1)
 
     return for_lstm
 
 
 def run_daily_stats(perspective
-                    , train_sample_size=1):
+                    , train_sample_size=1
+                    , series_type='Infections'):
     """
     This program reads covid cases and calculates daily increase before applying a lstm forecast
     """
+
+    states = ['vic', 'nsw', 'qld']
 
     if train_sample_size != 1:
         do_test = True
@@ -119,7 +136,7 @@ def run_daily_stats(perspective
     tensorflow.random.set_seed(42)
 
     # normalize the dataset
-    for_lstm = get_data(perspective)
+    for_lstm = get_data(perspective, series_type)
     ds2 = for_lstm.values
     ds2 = ds2.astype('float32')
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -187,20 +204,24 @@ def run_daily_stats(perspective
     if do_test:
         tst_predict = scaler.inverse_transform(tst_predict)
         tst_y = scaler.inverse_transform([tst_y])
+    if series_type == 'Case Fatality Rate':
+        precision = '%.4f'
+    else:
+        precision = '%.0f'
     prd_predict1 = scaler.inverse_transform(prd_predict1)
-    print('Latest Prediction (in 1 days): %.0f' % prd_predict1)
+    print('Latest Prediction (in 1 days): ' + precision % prd_predict1)
     prd_predict2 = scaler.inverse_transform(prd_predict2)
-    print('Latest Prediction (in 2 days): %.0f' % prd_predict2)
+    print('Latest Prediction (in 2 days): ' + precision % prd_predict2)
     prd_predict3 = scaler.inverse_transform(prd_predict3)
-    print('Latest Prediction (in 3 days): %.0f' % prd_predict3)
+    print('Latest Prediction (in 3 days): ' + precision % prd_predict3)
     prd_predict4 = scaler.inverse_transform(prd_predict4)
-    print('Latest Prediction (in 4 days): %.0f' % prd_predict4)
+    print('Latest Prediction (in 4 days): ' + precision % prd_predict4)
     prd_predict5 = scaler.inverse_transform(prd_predict5)
-    print('Latest Prediction (in 5 days): %.0f' % prd_predict5)
+    print('Latest Prediction (in 5 days): ' + precision % prd_predict5)
     prd_predict6 = scaler.inverse_transform(prd_predict6)
-    print('Latest Prediction (in 6 days): %.0f' % prd_predict6)
+    print('Latest Prediction (in 6 days): ' + precision % prd_predict6)
     prd_predict7 = scaler.inverse_transform(prd_predict7)
-    print('Latest Prediction (in 7 days): %.0f' % prd_predict7)
+    print('Latest Prediction (in 7 days): ' + precision % prd_predict7)
     print(for_lstm.tail(40))
 
     # calculate root mean squared error
@@ -247,7 +268,7 @@ def run_daily_stats(perspective
         p_title = 'Global'
     else:
         p_title = ''
-    plt.title(p_title + ' Daily Covid19 Infections')
+    plt.title(p_title + ' Daily Covid19 ' + series_type)
     plt.xlabel('Date')
     plt.ylabel('Count of Cases')
     if do_test:
@@ -255,4 +276,4 @@ def run_daily_stats(perspective
     else:
         plt.legend(['Actual', 'Training', 'Forecast'])
 
-    return plt
+    return None
