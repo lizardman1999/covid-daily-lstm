@@ -20,7 +20,6 @@ How to install and use
 	.. code-block:: python
 
 	 	import covid_forecast as cf
-	 
 	 	cf.run_daily_stats(perspective='global'
 		                   ,train_sample_size=0.8
 				   ,series_type='Infections')
@@ -29,7 +28,7 @@ How to install and use
 Input Parameters
 ----------------
 
-The perspective parameter may be either 'global' for global daily statistics; 'vic', 'nsw' or 'qld' for daily satistics for these states in Australia. The training sample is a value > 0 and less than or equal to one. If this value is set to 1 all observations are used to train the forecast. This is the percentage of observations held out for training. The most recent observations are  used for testing the fit. The series_type parameter determines the series to be forecats and can be either  'Infections' or 'Case Fatality Rate'. By default this program "looks back" 10 days in training the model and forecasts forward 7 days. These values will be parametised in future development.
+The perspective parameter may be either 'global' for global daily statistics; 'vic', 'nsw' or 'qld' for daily satistics for these states in Australia. The training sample is a value > 0 and less than or equal to one. If this value is set to 1 all observations are used to train the forecast. This is the percentage of observations held out for training. The most recent observations are  used for testing the fit. The series_type parameter determines the series to be forecast and can be either 'Infections' or 'Case Fatality Rate'. By default this program "looks back" 10 days in training the model and forecasts forward 7 days. These values will be parametised in future development.
 
 Acknowledgements
 ----------------
